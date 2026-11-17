@@ -42,7 +42,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python setup_model.py        # downloads the MediaPipe hand model (7.8 MB) into models/
 python src/landmarks.py      # demo: webcam with the 21 hand points drawn (q to quit)
+python src/train.py          # ~5 min, creates models/gesture_model.joblib (not in the repo)
 ```
+The landmark data (`data/gestures.csv`, `data/hagrid.csv`) is included, so after
+these steps `python src/live.py --dry-run` works right away.
 
 Don't install `opencv-python` next to `opencv-contrib-python` (which MediaPipe
 installs): both write to the same `cv2` folder and break each other.
