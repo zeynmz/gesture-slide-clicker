@@ -1,0 +1,10 @@
+# Pinned to the versions tested on macOS (Apple Silicon), Python 3.11.
+# Note: mediapipe pulls in opencv-contrib-python (provides cv2).
+# Do NOT also install opencv-python: both write to the same cv2 folder and break it.
+mediapipe==1.2.3
+opencv-contrib-python==5.0.0.93
+numpy==2.4.6
+pandas==3.1.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pyautogui==0.9.54
