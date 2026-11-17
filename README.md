@@ -5,9 +5,8 @@ right for the next slide, point left for the previous slide, and show an open
 palm to pause or resume. Everything else (talking, touching your face, holding
 a cup) should do nothing.
 
-A one-week data science project. The focus is the ML part: our own data, our
-own classifier, and an honest evaluation, given that only 3 people recorded
-training data.
+The focus is the ML part: our own data, our own classifier, and an honest
+evaluation, given that only 3 people recorded training data.
 
 | Gesture | Action |
 |---|---|
