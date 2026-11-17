@@ -27,6 +27,7 @@ window can keep the keyboard focus for marking while the slides still move.
 """
 import argparse
 import subprocess
+import sys
 import time
 
 import cv2
@@ -117,13 +118,15 @@ def main():
     p.add_argument("--scale", type=float, default=0.5, help="preview window size (fraction)")
     p.add_argument("--camera", type=int, default=0)
     p.add_argument("--keynote", action="store_true",
-                   help="control Keynote via AppleScript instead of pressing arrow keys")
+                   help="macOS only: control Keynote via AppleScript instead of pressing arrow keys")
     p.add_argument("--test", metavar="NAME", help="live test mode for this (unseen) person")
     p.add_argument("--kind", default="gestures", choices=["gestures", "talking", "presentation"],
                    help="gestures: called-out gestures; talking: no gestures, count false "
                         "triggers; presentation: a real talk")
     p.add_argument("--summary", action="store_true", help="only print live test results")
     args = p.parse_args()
+    if args.keynote and sys.platform != "darwin":
+        p.error("--keynote only works on macOS (AppleScript). Use plain arrow keys instead.")
     if args.summary:
         print_summary()
         return

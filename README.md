@@ -22,11 +22,24 @@ webcam (OpenCV, mirrored)
 
 Only landmark coordinates are stored, never images or video.
 
-## Setup (macOS, Python 3.11)
+## Setup (Python 3.11, macOS or Windows)
 
+**macOS**
 ```bash
 python3.11 -m venv .venv
 source .venv/bin/activate
+```
+
+**Windows** (PowerShell, 64-bit Python 3.11 from python.org)
+```powershell
+py -3.11 -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+If PowerShell refuses to run the activate script, run
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once.
+
+**Then, on both:**
+```bash
 pip install -r requirements.txt
 python setup_model.py        # downloads the MediaPipe hand model into models/
 python src/train.py          # ~5 min, creates models/gesture_model.joblib
@@ -35,11 +48,15 @@ python src/train.py          # ~5 min, creates models/gesture_model.joblib
 Don't install `opencv-python` alongside `opencv-contrib-python` (installed by
 MediaPipe): they overwrite each other's `cv2` folder.
 
-macOS permissions (System Settings → Privacy & Security) for the app you run
-Python from (Terminal / VS Code), then restart it:
-- **Camera**
-- **Accessibility**: for key presses; without it the slides silently don't move
-- **Automation → Keynote**: asked once when using `--keynote`
+**Permissions**
+- macOS (System Settings → Privacy & Security), for the app you run Python from
+  (Terminal / VS Code), then restart it:
+  - **Camera**
+  - **Accessibility**: for key presses; without it the slides silently don't move
+  - **Automation → Keynote**: asked once when using `--keynote`
+- Windows: Settings → Privacy & security → **Camera** → allow desktop apps.
+  Key presses need no extra permission. They don't reach apps running as
+  administrator unless Python runs as administrator too.
 
 ## Usage
 
@@ -47,8 +64,10 @@ Python from (Terminal / VS Code), then restart it:
 python src/landmarks.py          # camera demo with hand landmarks
 python src/live.py --dry-run     # prints actions, presses nothing
 python src/live.py               # presses arrow keys: click on your slides after starting
-python src/live.py --keynote     # controls Keynote directly (no focus needed)
+python src/live.py --keynote     # macOS only: controls Keynote directly (no focus needed)
 ```
+Arrow keys work with PowerPoint, Keynote, Google Slides, PDF viewers and so on.
+If the wrong camera opens, add `--camera 1`.
 
 Tuning: `--threshold` (default 0.8), `--frames` (default 15 ≈ 0.5 s),
 `--cooldown` (default 1.0 s), `--scale` (preview size). If it fires while you
@@ -76,7 +95,8 @@ Retrain with `python src/train.py` afterwards.
   flat-palm hands by ~90°. HaGRID's own `point` class points at the camera, so it's
   used as none.
 
-To rebuild `hagrid.csv` (719 MB download, annotations only):
+Not needed to run the project, since `hagrid.csv` is included. To rebuild it
+(719 MB download, annotations only; macOS/Linux shell):
 ```bash
 mkdir -p data/hagrid_raw
 curl -L -C - -o data/hagrid_raw/annotations.zip \
@@ -105,14 +125,17 @@ python src/live.py --test name --kind talking --dry-run        # just talking, n
 python src/live.py --test name --kind presentation --keynote   # real talk
 python src/live.py --summary
 ```
-Results go to `results/`.
+Results go to `results/`. The marking keys only work while the camera window
+has focus, so a real-presentation test with marking needs `--keynote` (macOS).
+Elsewhere, use the `gestures` and `talking` tests.
 
 ## Limitations
 
 - Trained on only 3 people recorded in one room, so other people, lighting or
   cameras may work worse.
 - Talking with your hands can still trigger a slide change occasionally.
-- macOS only (AVFoundation camera backend, Keynote AppleScript).
+- Developed on macOS. Windows is supported, but we haven't tested it on a
+  Windows machine yet. `--keynote` is macOS only.
 
 ## Project structure
 

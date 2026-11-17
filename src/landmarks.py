@@ -5,6 +5,7 @@ live.py see exactly the same preprocessing (most importantly: the mirror flip).
 
 Run as a demo:  python src/landmarks.py   (press q or Esc to quit)
 """
+import sys
 import time
 from pathlib import Path
 
@@ -16,6 +17,20 @@ from mediapipe.tasks.python import BaseOptions, vision
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "hand_landmarker.task"
 HAND_CONNECTIONS = [(c.start, c.end) for c in vision.HandLandmarksConnections.HAND_CONNECTIONS]
 
+# Native camera backend per OS. On Windows, DirectShow opens the webcam much
+# faster than OpenCV's default (Media Foundation); elsewhere let OpenCV choose.
+if sys.platform == "darwin":
+    CAMERA_BACKEND = cv2.CAP_AVFOUNDATION
+    CAMERA_HELP = ("On macOS, allow camera access for your terminal app in "
+                   "System Settings > Privacy & Security > Camera.")
+elif sys.platform == "win32":
+    CAMERA_BACKEND = cv2.CAP_DSHOW
+    CAMERA_HELP = ("On Windows, check Settings > Privacy & security > Camera "
+                   "(allow desktop apps), and close other apps using the camera.")
+else:
+    CAMERA_BACKEND = cv2.CAP_ANY
+    CAMERA_HELP = "Check that a webcam is connected and not used by another app."
+
 
 class Camera:
     """Webcam that always returns MIRRORED frames.
@@ -25,15 +40,12 @@ class Camera:
     """
 
     def __init__(self, index=0, width=1280, height=720):
-        # CAP_AVFOUNDATION = the native macOS camera backend.
-        self.cap = cv2.VideoCapture(index, cv2.CAP_AVFOUNDATION)
+        self.cap = cv2.VideoCapture(index, CAMERA_BACKEND)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         if not self.cap.isOpened():
-            raise RuntimeError(
-                "Could not open camera. On macOS, allow camera access for your "
-                "terminal app in System Settings > Privacy & Security > Camera."
-            )
+            raise RuntimeError(f"Could not open camera {index}. {CAMERA_HELP} "
+                               "Try --camera 1 if you have several cameras.")
 
     def read(self):
         ok, frame = self.cap.read()
